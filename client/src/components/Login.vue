@@ -1,5 +1,5 @@
 <template>
-<div class="container">
+<div class="container login">
   <el-form :model="ruleForm" :rules="rules" ref="user" label-width="100px" class="userForm">
     <el-form-item label="用户名" prop="username" style="width:450px">
       <el-input v-model="ruleForm.username" placeholder="username"></el-input>
@@ -94,18 +94,18 @@ export default {
     background: -moz-linear-gradient(right, #f5f7fa , #7c7cb7,#5f2626); 
     background: linear-gradient(to right, #f5f7fa , #7c7cb7,#5f2626); 
   } */
-  .el-form{
+  .login .el-form{
     position: relative;
     top:300px;
     left: 37%;
   }
-  .el-form .err{
+  .login .el-form .err{
     color: red;
     font-size: 14px;
     position: absolute;
     left: 100px;
   }
-  .el-form .el-button{
+  .login .el-form .el-button{
     display: block;
     position: relative;
     top: 30px;

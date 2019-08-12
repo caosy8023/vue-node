@@ -1,7 +1,8 @@
 <template>
-    <div class="user">
+    <div class="container user">
         <h3>用户管理</h3>
         <el-button type="primary" style="margin-left:200px" @click="newUser()">新增用户</el-button>
+        <el-button type="primary" @click="deleteList()">批量删除</el-button>
         <el-dialog
           title="用户信息"
           :visible.sync="dialogVisible"
@@ -25,8 +26,9 @@
             </el-form-item>
           </el-form>
           <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="save()">保 存</el-button>
-            <el-button type="danger" @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" v-if="saveFlag" @click="save()">保 存</el-button>
+            <el-button type="primary" v-if="!saveFlag" @click="update()">更 新</el-button>
+            <el-button type="danger" @click="handleClose">取 消</el-button>
           </span>
         </el-dialog>
         <el-table
@@ -67,6 +69,7 @@
         </el-table-column>
         <el-table-column
           label="操作"
+          width="150"
           show-overflow-tooltip>
           <template slot-scope="scope">
             <el-button size="mini" type="danger" @click="updateClick(scope.row)">修改</el-button>
@@ -85,8 +88,12 @@ export default {
   props: {},
   data() {
     return {
+      usernames:[],
+      saveFlag:'',
+      userInfo:{},
       ruleForm:{
         username:'',
+        password:'',
         age:'',
         phone:'',
         address:''
@@ -119,22 +126,78 @@ export default {
           })
         })
         this.tableData = data
-        console.log(this.tableData)
+        // console.log(this.tableData)
       }).catch(err => {
 
       })
     },
-    handleSelectionChange(){
-
+    handleSelectionChange(val){
+      this.usernames = val
     },
     updateClick(row){
-
+      this.dialogVisible = true
+      this.saveFlag = false
+      axios({
+        method:'get',
+        url:'/api/user',
+        params:{
+          username:row.username
+        }
+      }).then(res => {
+        this.userInfo = res.data.msg[0]
+        this.ruleForm.username = this.userInfo.username
+        this.ruleForm.age = this.userInfo.age
+        this.ruleForm.phone = this.userInfo.phone
+        this.ruleForm.address = this.userInfo.address
+        this.ruleForm.password = this.userInfo.password
+      }).catch(err => {
+        console.log(err)
+      })
     },
     deleteClick(row){
-
+      var _this = this
+      axios({
+        method:'post',
+        url:'/api/deleteUser',
+        data:{
+          username:row.username
+        }
+      }).then(res => {
+        if(res.data.code == '200'){
+          
+          this.getUsersList()
+          alert('删除成功')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    deleteList(){
+      var arr = []
+      this.usernames.forEach((item,index) => {
+        arr.push(item.username)
+      })
+      if(arr.length == 0){
+        return
+      }
+      axios.put('/api/deleteList',{usernames:arr}).then(res => {
+        if(res.data.code == '200'){
+          alert('删除成功')
+          this.getUsersList()
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     },
     newUser(){
       this.dialogVisible = true
+      this.saveFlag = true
+      this.userInfo = {}
+      this.ruleForm.username = ''
+      this.ruleForm.age = ''
+      this.ruleForm.phone = ''
+      this.ruleForm.address = ''
+      this.ruleForm.password = ''
     },
     save(){
       axios({
@@ -149,14 +212,42 @@ export default {
         }
       }).then(res => {
         this.dialogVisible = false
-        this.ruleForm = {}
+        this.ruleForm.username = ''
+        this.ruleForm.age = ''
+        this.ruleForm.phone = ''
+        this.ruleForm.address = ''
+        this.ruleForm.password = ''
+        this.userInfo = {}
         this.getUsersList()
       }).catch(err => {
 
       })
     },
+    update(){
+      axios({
+        method:'post',
+        url:'/api/updateUser',
+        data:{
+          username:this.ruleForm.username,
+          age:this.ruleForm.age,
+          phone:this.ruleForm.phone,
+          address:this.ruleForm.address,
+          password:this.ruleForm.password
+        }
+      }).then(res => {
+        this.dialogVisible = false
+        this.getUsersList()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     handleClose(){
       this.dialogVisible = false
+      this.ruleForm.username = ''
+      this.ruleForm.age = ''
+      this.ruleForm.phone = ''
+      this.ruleForm.address = ''
+      this.ruleForm.password = ''
     }
   },
   created() {},
