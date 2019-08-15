@@ -64,8 +64,8 @@ export default {
             }
           }).then(res => {
             if(res.data.code == '0'){
-              var data = [{username:this.ruleForm.username,password:this.ruleForm.password}]
-              var d = JSON.stringify(data[0])
+              var data = {username:this.ruleForm.username,password:this.ruleForm.password}
+              var d = JSON.stringify(data)
               window.sessionStorage.setItem('data',d)
               this.$router.push({
                 path: '/index'

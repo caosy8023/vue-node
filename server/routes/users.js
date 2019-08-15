@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 var db = require('../model/db')
 var URL = require('url')
+var multiparty = require('multiparty')
+var formidable = require('formidable')
+var fs = require('fs')
+var multer = require("multer")
 
 /* 登录*/
 router.post('/login',function(req,res){
@@ -178,5 +182,24 @@ router.put('/deleteList',function(req,res){
       res.send(data)
     }
   })
+})
+var upload = multer({dest:'../public/images/upload'})
+router.post('/upload', upload.single('file'),function(req,res){
+  var data = {}
+  // var form = new formidable.IncomingForm()
+  // form.encoding = 'utf-8'
+  // form.uploadDir = '../public/images/upload/'
+  // form.keepExtensions = true
+  // form.maxFieldsSize = 5 * 1024 * 1024
+  // form.parse(req, function (err, fields, files) {
+    console.log(req.formdata)
+  // })
+  // var form = new multiparty.Form()
+  // form.uploadDir = '../public/images/upload/'
+  // form.parse(req,function (err,fileids,files){
+  //   console.log(req.body)
+  // })
+  
+  res.send(data)
 })
 module.exports = router;

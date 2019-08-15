@@ -1,6 +1,7 @@
 <template>
     <div class="header">
         <el-button style="float:right;margin-top:5px;color:red;background-color:#b5bac3;border:none" @click="logout">退出</el-button>
+        <span style="float:right;line-height:47px">{{userId}}</span>
     </div>
 </template>
 
@@ -11,6 +12,7 @@ export default {
   props: {},
   data() {
     return {
+        userId:sessionStorage.data[0].username
     };
   },
   watch: {},
@@ -24,7 +26,10 @@ export default {
       }
   },
   created() {},
-  mounted() {}
+  mounted() {
+      this.userId = JSON.parse(sessionStorage.data).username
+      console.log(this.userId.username)
+  }
 };
 </script>
 <style scoped>
