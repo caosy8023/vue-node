@@ -12,10 +12,14 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api':{
-        target:'http://192.168.18.187:3000/',
+        target:'http://127.0.0.1:3000',
+        // bypass: function (req, res, proxyOptions) {
+        //   req.headers.referer = 'https://c.y.qq.com';
+        //   req.headers.host = 'c.y.qq.com';
+        // },
         changeOrigin:true,
         secure:true,
-          pathRewrite: {
+        pathRewrite: {
           '^/api': ''
         }
       }

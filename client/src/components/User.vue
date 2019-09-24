@@ -264,7 +264,8 @@ export default {
     top:50px;
     width: 60%;
     position: relative;
-    left: 17%;
+    margin-left: 60px; 
+    /* left: 17%; */
   }
   .el-input__inner{
     width: 90%;

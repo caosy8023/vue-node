@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/Login'
 import Index from '@/components/Index'
+import Register from '@/components/Register'
 import Comment from '@/components/Comment'
 import User from '@/components/User'
 import ShopCar from '@/components/ShopCar'
@@ -72,6 +73,15 @@ export default new Router({
       meta:{
         keepAlive:true,
         needLogin:true
+      }
+    },
+    {
+      path:'/register',
+      name:'Register',
+      component:Register,
+      meta:{
+        keepAlive:false,
+        // needLogin:false
       }
     }
   ]

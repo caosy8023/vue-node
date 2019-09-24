@@ -1,6 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import store from './store'
 import App from './App'
 import router from './router'
 import axios from 'axios'
@@ -24,6 +25,7 @@ router.beforeEach((to,from,next) => {
 })
 new Vue({
   el: '#app',
+  store,
   router,
   components: { App },
   template: '<App/>'

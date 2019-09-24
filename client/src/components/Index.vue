@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-      <el-carousel :interval="5000" arrow="always" height="400px" style="width:1000px">
+      <el-carousel :interval="5000" arrow="always" height="250px" style="width:600px">
         <el-carousel-item v-for="item in lunbo" :key="item.img">
           <img :src="item.img" alt="">
         </el-carousel-item>

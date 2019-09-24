@@ -6,8 +6,74 @@ var multiparty = require('multiparty')
 var formidable = require('formidable')
 var fs = require('fs')
 var multer = require("multer")
+const nodemailer = require('nodemailer')
 
 /* 登录*/
+router.post('/emailLogin',function(req,res){
+    var sql = 'select * from validates'
+    var connection = db.connection()
+    var sqlparam = [req.body.validate,req.body.email]
+    connection.query(sql,function(err,result){
+      if(err){
+        console.log(err)
+      }else if(result){
+        if(result[0].validate == req.body.validate && result[0].email == req.body.email ){
+          res.json({
+            code:200,
+            msg:'登录成功'
+          })
+        }else{
+          res.json({
+            code:500,
+            msg:'登录失败,邮箱或者验证码不正确'
+          })
+        }
+      }
+    })
+    
+})
+router.get('/email',function(req,res){
+  let num = ''
+  for (let i = 0; i < 6; i++) {
+    num += Math.floor(Math.random()*10)
+  }
+  let transporter = nodemailer.createTransport({
+      host: 'smtp.qq.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+          user: '1733010143@qq.com', // generated ethereal user
+          pass: 'vbenrgvnufolbiic' // generated ethereal password
+      }
+  })
+  transporter.sendMail({
+    from: '"Fred Foo 👻" <1733010143@qq.com>', // sender address
+    to: URL.parse(req.url,true).query.email, // list of receivers
+    subject: '验证码', // Subject line
+    text: `验证码为${num},3分钟有效!`, // plain text body
+    // html: '<b>Hello world?</b>' // html body
+  },function(err,info){
+    if(err){
+      console.log(err)
+    }else{
+      var sql = 'update validates set validate = ?,email = ?'
+      var connection = db.connection()
+      var sqlparam = [num,URL.parse(req.url,true).query.email]
+      connection.query(sql,sqlparam,function(err,result){
+        if(err){
+          res.json({
+            code:500
+          })
+        }else if(result){
+          res.json({
+            code:200
+          })
+        }
+      })
+    }
+  })
+  
+})
 router.post('/login',function(req,res){
   var params = URL.parse(req.url, true).query;
   var sql = 'select * from users where username = ? and password = ?'
@@ -79,6 +145,7 @@ router.post('/addUser',function(req,res){
 })
 //查询用户列表
 router.get('/usersList',function(req,res){
+  // res.send(333)
   var sql = 'select * from users'
   var pool = db.pool()
   var data = {}
@@ -201,5 +268,40 @@ router.post('/upload', upload.single('file'),function(req,res){
   // })
   
   res.send(data)
+})
+//购物车列表
+router.get('/shopcarList',function(req,res){
+  var sql = 'select * from shopcar'
+  var data = {}
+  var pool = db.pool()
+  pool.query(sql,function(err,result){
+    if(err){
+      data.code = '500'
+      data.msg = '查询失败'
+      res.send(data)
+    }else if(result){
+      data.code = '200'
+      data.msg = result
+      res.send(data)
+      // console.log(result)
+    }
+  })
+})
+//增加(减少)购物车商品数量
+router.post('/addShopcar',function(req,res){
+  var sql = 'update shopcar set name = ?,address = ?,price = ?,count = ?,allPrice = ? where id = ?'
+  var sqlparam = [req.body.name,req.body.address,req.body.price,req.body.count,req.body.allPrice,req.body.id]
+  var pool = db.pool()
+  var data = {}
+  pool.query(sql,sqlparam,function(err,result){
+    if(err){
+      data.code = '500'
+      data.msg = '操作失败'
+    }else if(result){
+      data.code = '200'
+      data.msg = '操作成功'
+      res.send(data)
+    }
+  })
 })
 module.exports = router;

@@ -3,11 +3,9 @@
     <el-row class="tac">
         <el-col width="200px">
         <el-menu
-            default-active="/home/index"
+            :default-active="defaultActive"
             :router=true
             class="el-menu-vertical-demo"
-            @open=""
-            @close=""
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#ffd04b">
@@ -54,13 +52,20 @@ export default {
   props: {},
   data() {
     return {
+        defaultActive:this.$router.history.current.path
     };
   },
-  watch: {},
+  watch: {
+    '$route' (to, from){
+      this.defaultActive = to.path
+    }
+  },
   computed: {},
   methods: {},
   created() {},
-  mounted() {}
+  mounted() {
+    //   console.log(this.$refs.menu.defaultActive)
+  }
 };
 </script>
 <style scoped>
