@@ -123,11 +123,15 @@ export default {
     },
     mailLogin(){
       this.loginWay = false
-      this.$refs.ruleForm.clearValidate()
+      if(this.$refs.ruleForm){
+        this.$refs.ruleForm.clearValidate()
+      }
     },
     pwdLogin(){
       this.loginWay = true
-      this.$refs.ruleForm1.clearValidate()
+      if(this.$refs.ruleForm1){
+        this.$refs.ruleForm1.clearValidate()
+      }
     },
     register(){
       this.$router.push({path:'/register'})
@@ -136,14 +140,14 @@ export default {
       if(this.loginWay){
         this.$refs.ruleForm.validate(valid => {
           if(valid){
-            axios({
-              url:'/api/email',
-              method:'get',
-            }).then(res => {
-              console.log(res)
-            }).catch(err => {
+            // axios({
+            //   url:'/api/email',
+            //   method:'get',
+            // }).then(res => {
+            //   console.log(res)
+            // }).catch(err => {
 
-            })
+            // })
             axios({
               url:'/api/login',
               method:'post',
@@ -206,12 +210,15 @@ export default {
 };
 </script>
 <style lang="scss">
-  /* body{
-    background: -webkit-linear-gradient(left, #f5f7fa , #7c7cb7,#5f2626); 
-    background: -o-linear-gradient(right, #f5f7fa , #7c7cb7,#5f2626); 
-    background: -moz-linear-gradient(right, #f5f7fa , #7c7cb7,#5f2626); 
-    background: linear-gradient(to right, #f5f7fa , #7c7cb7,#5f2626); 
-  } */
+  // body{
+  //   background: -webkit-linear-gradient(left, #f5f7fa , #7c7cb7,#5f2626); 
+  //   background: -o-linear-gradient(right, #f5f7fa , #7c7cb7,#5f2626); 
+  //   background: -moz-linear-gradient(right, #f5f7fa , #7c7cb7,#5f2626); 
+  //   background: linear-gradient(to right, #f5f7fa , #7c7cb7,#5f2626); 
+  // } 
+  .login{
+    position: relative;
+  }
   .login .el-form{
     position: relative;
     top:300px;

@@ -12,6 +12,9 @@ function resolve (dir) {
 
 module.exports = {
   context: path.resolve(__dirname, '../'),
+  devServer: {
+    disableHostCheck: true,
+  },
   entry: {
     app: './src/main.js'
   },

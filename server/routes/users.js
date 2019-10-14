@@ -4,9 +4,10 @@ var db = require('../model/db')
 var URL = require('url')
 var multiparty = require('multiparty')
 var formidable = require('formidable')
-var fs = require('fs')
+var {fs,rename} = require('fs')
 var multer = require("multer")
 const nodemailer = require('nodemailer')
+const {normalize,resolve} = require('path')
 
 /* 登录*/
 router.post('/emailLogin',function(req,res){
@@ -250,32 +251,50 @@ router.put('/deleteList',function(req,res){
     }
   })
 })
-var upload = multer({dest:'../public/images/upload'})
-router.post('/upload', upload.single('file'),function(req,res){
-  var data = {}
-  // var form = new formidable.IncomingForm()
-  // form.encoding = 'utf-8'
-  // form.uploadDir = '../public/images/upload/'
-  // form.keepExtensions = true
-  // form.maxFieldsSize = 5 * 1024 * 1024
-  // form.parse(req, function (err, fields, files) {
-    console.log(req.formdata)
-  // })
-  // var form = new multiparty.Form()
-  // form.uploadDir = '../public/images/upload/'
-  // form.parse(req,function (err,fileids,files){
-  //   console.log(req.body)
-  // })
-  
-  res.send(data)
+router.get('/public/*', function (req, res) {
+  res.sendFile( resolve(__dirname,'../../server') + req.url )
+  console.log(resolve(__dirname,'../../server') + req.url)
+})
+router.post('/upload',(req,res,next) => {
+  let form = new formidable.IncomingForm()
+  form.uploadDir = normalize(__dirname + '/../public/upload')
+  form.parse(req,(err,fieids,files) => {
+    if(files.img == undefined){
+      res.json({
+        code:500,
+        msg:'上传失败'
+      })
+      return
+    }
+    let oldPath = files.img.path
+    newPath = normalize(__dirname + '/../public/upload') + '\\' + Date.now() + '.png'
+    rename(oldPath,newPath,(err) => {
+      if(err){
+        console.log(err)
+        res.json({
+          code:500,
+          msg:'上传失败'
+        })
+      }
+      if(newPath){
+        console.log('上传成功')
+        res.json({
+          code:200,
+          msg:'上传成功'
+        })
+      }
+    })
+  })
 })
 //购物车列表
 router.get('/shopcarList',function(req,res){
-  var sql = 'select * from shopcar'
+  var sql = 'select * from shopcar where user_id = ?'
   var data = {}
   var pool = db.pool()
-  pool.query(sql,function(err,result){
+  console.log(req.query.userId)
+  pool.query(sql,[req.query.userId],function(err,result){
     if(err){
+      console.log(err)
       data.code = '500'
       data.msg = '查询失败'
       res.send(data)
@@ -283,7 +302,7 @@ router.get('/shopcarList',function(req,res){
       data.code = '200'
       data.msg = result
       res.send(data)
-      // console.log(result)
+      console.log(result)
     }
   })
 })

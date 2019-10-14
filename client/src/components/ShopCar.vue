@@ -5,9 +5,9 @@
         :data="car"
         style="width: 90%">
         <el-table-column
-          prop="id"
+          prop="goodsNum"
           label="商品编号"
-          width="90">
+          width="120">
         </el-table-column>
         <el-table-column
           prop="name"
@@ -82,7 +82,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.SHOPCAR_LIST()
+    this.SHOPCAR_LIST(JSON.parse(sessionStorage.data).username)
   }
 };
 </script>

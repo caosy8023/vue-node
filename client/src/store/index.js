@@ -5,7 +5,7 @@ import actions from './action'
 import mutations from './mutations'
 import axios from 'axios'
 Vue.use(Vuex)
-let data = []
+// let data = []
 
 // const data = [
 //     {
@@ -41,9 +41,9 @@ let data = []
 //         allPrice:0,
 //         }
 // ]
-const car = JSON.parse(localStorage.getItem('car')) || data 
+// const car = JSON.parse(localStorage.getItem('car')) || data 
 const state = {
-    car:car
+    car:[]
 }
 export default new Vuex.Store({
     state,

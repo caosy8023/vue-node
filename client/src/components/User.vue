@@ -63,6 +63,12 @@
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
+          prop="email"
+          label="邮箱"
+          width="200"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
           prop="address"
           label="地址"
           show-overflow-tooltip>
@@ -122,11 +128,12 @@ export default {
             username:item.username,
             age:item.age,
             phone:item.phone,
-            address:item.address
+            address:item.address,
+            email:item.email
           })
         })
         this.tableData = data
-        // console.log(this.tableData)
+        console.log(this.tableData)
       }).catch(err => {
 
       })
@@ -262,7 +269,7 @@ export default {
   }
   .el-table{
     top:50px;
-    width: 60%;
+    width: 70%;
     position: relative;
     margin-left: 60px; 
     /* left: 17%; */

@@ -1,18 +1,19 @@
-import {
-    ADD_COUNT,
-    SHOPCAR_LIST
-} from './mutation-types'
+// import {
+//     ADD_COUNT,
+//     SHOPCAR_LIST
+// } from './mutation-types'
 export default{
-    add({
+    async add({
         commit,
         state
     },id){
-        commit('ADD_COUNT',id)
+        await commit('ADD_COUNT',id)
     },
     SHOPCAR_LIST({
         commit,
         state
-    }){
-        commit('SHOPCAR_LIST')
+    },userId){
+        commit('SHOPCAR_LIST',userId)
+        console.log(userId)
     }
 }

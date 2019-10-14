@@ -49,19 +49,22 @@ export default {
                         allPrice:item.count * item.price
                     }
                 }).then(res => {
-
+                    
                 }).catch(err => {
-        
+                    console.log(err)
                 })
             }
             item.allPrice = item.count * item.price
         })
         localStorage.setItem('car',JSON.stringify(state.car))
     },
-    [SHOPCAR_LIST](state){
+    [SHOPCAR_LIST](state,userId){
         axios({
             method:'get',
-            url:'/api/shopcarList'
+            url:'/api/shopcarList',
+            params:{
+                userId:userId
+            }
         }).then(res => {
             state.car = res.data.msg
             console.log(state.car)
