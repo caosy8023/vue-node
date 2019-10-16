@@ -16,8 +16,8 @@
             </template>
             <el-menu-item-group>
                 <!-- <template slot="title">分组一</template> -->
-                <el-menu-item index="/home/index">选项1</el-menu-item>
-                <el-menu-item index="/home/comment">选项2</el-menu-item>
+                <el-menu-item index="/home/index">商品主页</el-menu-item>
+                <el-menu-item index="/home/goods">商品管理</el-menu-item>
             </el-menu-item-group>
             <!-- <el-menu-item-group title="分组2"> -->
                 <!-- <el-menu-item index="1-3">选项3</el-menu-item> -->

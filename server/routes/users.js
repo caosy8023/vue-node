@@ -31,7 +31,7 @@ router.post('/emailLogin',function(req,res){
         }
       }
     })
-    
+    db.close(connection)
 })
 router.get('/email',function(req,res){
   let num = ''
@@ -71,6 +71,7 @@ router.get('/email',function(req,res){
           })
         }
       })
+      db.close(connection)
     }
   })
   
@@ -92,21 +93,58 @@ router.post('/login',function(req,res){
         if(result[0].username == sqlparam[0] && result[0].password == sqlparam[1]){
           data.msg = '登陆成功'
           data.code = '0'
+          data.avatar = result[0].avatar
           res.send(data)
         }else{
           data.msg = '用户名或密码错误'
-          data.code = '1'
+          data.code = '500'
           res.send(data)
         }
       }else{
         data.msg = '用户名或密码错误'
-        data.code = '1'
+        data.code = '500'
         res.send(data)
       }
       
     }
   })
   connection.end()
+})
+//注册
+router.post('/register',(req,res) => {
+  var sql = 'insert into users(username,password,age,phone,address,email,avatar) values(?,?,?,?,?,?,?)'
+  var sql1 = 'select * from users where username = ?'
+  var pool = db.pool()
+  var data = {}
+  var sqlparam = [req.body.username,req.body.password,req.body.age,req.body.phone,req.body.address,req.body.email,req.body.avatar]
+  pool.query(sql1,[req.body.username],function(err,result){
+    if(err){
+      data.code = '500'
+      data.msg = '操作失败'
+      console.log(err)
+      res.send(data)
+    }else if(result){
+      if(result.length !== 0){
+        data.code = '500'
+        data.msg = '用户已存在'
+        res.send(data)
+      }else{
+        pool.query(sql,sqlparam,function(errs,results){
+          if(errs){
+            data.code = '500'
+            data.msg = '操作失败1'
+            console.log(errs)
+            res.send(data)
+          }else if(results){
+            data.code = '200'
+            data.msg = '操作成功'
+            res.send(data)
+          }
+        })
+      }
+    }
+    // connection.release()
+  })
 })
 //新增用户
 router.post('/addUser',function(req,res){
@@ -280,7 +318,8 @@ router.post('/upload',(req,res,next) => {
         console.log('上传成功')
         res.json({
           code:200,
-          msg:'上传成功'
+          msg:'上传成功',
+          url:newPath.split('server')[1]
         })
       }
     })
@@ -288,10 +327,10 @@ router.post('/upload',(req,res,next) => {
 })
 //购物车列表
 router.get('/shopcarList',function(req,res){
-  var sql = 'select * from shopcar where user_id = ?'
+  var sql = 'select * from shopcar where userId = ?'
   var data = {}
   var pool = db.pool()
-  console.log(req.query.userId)
+  // console.log(req.query.userId)
   pool.query(sql,[req.query.userId],function(err,result){
     if(err){
       console.log(err)
@@ -302,7 +341,7 @@ router.get('/shopcarList',function(req,res){
       data.code = '200'
       data.msg = result
       res.send(data)
-      console.log(result)
+      // console.log(result)
     }
   })
 })
@@ -320,6 +359,96 @@ router.post('/addShopcar',function(req,res){
       data.code = '200'
       data.msg = '操作成功'
       res.send(data)
+    }
+  })
+})
+//商品列表
+router.get('/goodsList',(req,res) => {
+  // console.log(req.query)
+  let sql = 'select * from goods where'
+  let flag = 0
+  for (let item in req.query) {
+    if(req.query[item] != ''){
+      flag++
+      if(flag > 1){
+        sql += ` and ${item} like '%${req.query[item]}%'`
+      }else{
+        sql += ` ${item} like '%${req.query[item]}%'`
+      }
+    }
+  }
+  if(flag == 0){
+    sql = 'select * from goods'
+  }
+  let pool = db.pool()
+  pool.query(sql,(err,result) => {
+    if(err){
+      res.json({
+        code:500,
+        msg:'查询失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'查询成功',
+        list:result
+      })
+    }
+  })
+})
+//新增商品
+router.post('/addGoods',(req,res) => {
+  let sql = 'insert into goods(goodsName,type,price,count) values(?,?,?,?)'
+  let pool = db.pool()
+  let sqlparam = [req.body.goodsName,req.body.type,req.body.price,req.body.count]
+  pool.query(sql,sqlparam,(err,result) => {
+    if(err){
+      res.json({
+        code:500,
+        msg:'新增商品失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'新增商品成功'
+      })
+    }
+  })
+})
+//修改商品信息
+router.post('/updateGoods',(req,res) => {
+  let sql = 'update goods set goodsName = ?,type = ?,price = ?,count = ? where id = ?'
+  let sqlparam = [req.body.goodsName,req.body.type,req.body.price,req.body.count,req.body.id]
+  let pool = db.pool()
+  pool.query(sql,sqlparam,(err,result) => {
+    if(err){
+      res.json({
+        code:500,
+        msg:'修改失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'修改成功'
+      })
+    }
+  })
+})
+//删除商品记录
+router.post('/deleteGoods',(req,res) => {
+  let sql = `delete from goods where id = ${req.body.id}`
+  let pool = db.pool()
+  pool.query(sql,(err,result) => {
+    if(err){
+      res.json({
+        code:500,
+        msg:'删除失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'删除成功'
+      })
     }
   })
 })

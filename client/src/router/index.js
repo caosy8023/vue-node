@@ -40,7 +40,7 @@ export default new Router({
       }
     },
     {
-      path: '/home/comment',
+      path: '/home/goods',
       name: 'Comment',
       component: Comment,
       meta:{

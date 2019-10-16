@@ -5,7 +5,7 @@
         :data="car"
         style="width: 90%">
         <el-table-column
-          prop="goodsNum"
+          prop="goods_id"
           label="商品编号"
           width="120">
         </el-table-column>

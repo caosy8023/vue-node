@@ -39,17 +39,17 @@ export default {
   data() {
     const username = /^\w+$/
     var validUsername=(rule, value,callback)=>{
-          if(!username.test(value)){
-            callback(new Error('请输入合法的账号！'))
+      if(!username.test(value)){
+        callback(new Error('请输入合法的账号！'))
       }else {
-          callback()
+        callback()
       }
     }
     var validPassword=(rule, value,callback)=>{
-          if(value.length<6){
-            callback(new Error('密码长度不能小于6位！'))
+      if(value.length<6){
+        callback(new Error('密码长度不能小于6位！'))
       }else {
-          callback()
+        callback()
       }
     }
     var validEmail = (rule,value,callback) => {
@@ -157,7 +157,7 @@ export default {
               }
             }).then(res => {
               if(res.data.code == '0'){
-                var data = {username:this.ruleForm.username,password:this.ruleForm.password}
+                var data = {username:this.ruleForm.username,password:this.ruleForm.password,avatar:'http://localhost:3000'+res.data.avatar}
                 var d = JSON.stringify(data)
                 window.sessionStorage.setItem('data',d)
                 this.$router.push({

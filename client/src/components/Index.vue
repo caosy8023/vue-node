@@ -1,10 +1,15 @@
 <template>
     <div class="container">
-      <el-carousel :interval="5000" arrow="always" height="250px" style="width:600px">
-        <el-carousel-item v-for="item in lunbo" :key="item.img">
-          <img :src="item.img" alt="">
-        </el-carousel-item>
-      </el-carousel>
+      <div class="carousel">
+        <el-carousel :interval="5000" arrow="always" height="250px" style="width:600px">
+          <el-carousel-item v-for="item in lunbo" :key="item.img">
+            <img :src="item.img" alt="">
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+      <div class="content">
+        
+      </div>
     </div>
 </template>
 
