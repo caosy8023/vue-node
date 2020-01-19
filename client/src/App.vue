@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-container v-if="$route.meta.keepAlive">
-      <el-aside width="200px" style="background-color:rgb(84, 92, 100);height:969px">
+      <el-aside width="200px" style="background-color:rgb(84, 92, 100);min-height:969px">
         <keep-alive>
           <left></left>
         </keep-alive>
@@ -44,5 +44,8 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+.el-main{
+  padding: 5px;
 }
 </style>

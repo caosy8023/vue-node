@@ -1,5 +1,4 @@
+// import {state} from './index'
 export default{
-    getCarList(sate){
-        return sate.car
-    }
+    shopCar: state => state.car
 }

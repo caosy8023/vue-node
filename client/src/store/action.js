@@ -14,6 +14,5 @@ export default{
         state
     },userId){
         commit('SHOPCAR_LIST',userId)
-        console.log(userId)
     }
 }

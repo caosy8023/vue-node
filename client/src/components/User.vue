@@ -1,7 +1,35 @@
 <template>
     <div class="container user">
-        <h3>用户管理</h3>
-        <el-button type="primary" style="margin-left:200px" @click="newUser()">新增用户</el-button>
+        <div class="top">
+          <el-form ref="users" label-width="90px">
+            <el-row>
+              <el-col :span="5">
+                <el-form-item label="用户名" prop="uername">
+                  <el-input v-model="username" placeholder="输入关键字" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="手机号" prop="phone">
+                  <el-input v-model="phone" placeholder="输入关键字" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="住址" prop="address">
+                  <el-input v-model="address" placeholder="输入关键字" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="5">
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model="email" placeholder="输入关键字" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="3">
+                <el-button class="btn-search" @click="getUsersList()" >搜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;索</el-button>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+        <el-button type="primary" style="margin-left:100px" @click="newUser()">新增用户</el-button>
         <el-button type="primary" @click="deleteList()">批量删除</el-button>
         <el-dialog
           title="用户信息"
@@ -18,7 +46,7 @@
             <el-form-item label="年龄" prop="age">
               <el-input v-model="ruleForm.age"></el-input>
             </el-form-item>
-            <el-form-item label="电话号码" prop="phone">
+            <el-form-item label="手机号" prop="phone">
               <el-input v-model="ruleForm.phone"></el-input>
             </el-form-item>
             <el-form-item label="地址" prop="address">
@@ -59,7 +87,7 @@
         <el-table-column
           prop="phone"
           width="150"
-          label="电话号码"
+          label="手机号"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
@@ -78,7 +106,7 @@
           width="150"
           show-overflow-tooltip>
           <template slot-scope="scope">
-            <el-button size="mini" type="danger" @click="updateClick(scope.row)">修改</el-button>
+            <el-button size="mini" style="background:orange;color:white" @click="updateClick(scope.row)">修改</el-button>
             <el-button size="mini" type="danger" @click="deleteClick(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -97,6 +125,10 @@ export default {
       usernames:[],
       saveFlag:'',
       userInfo:{},
+      username:'',
+      phone:'',
+      address:'',
+      email:'',
       ruleForm:{
         username:'',
         password:'',
@@ -115,10 +147,22 @@ export default {
   watch: {},
   computed: {},
   methods: {
-    getUsersList(){
+    getUsersList(page){
+      let pageNo = 1
+      if(page != undefined){
+        pageNo = page
+      }
       axios({
         method:'get',
-        url:'/api/usersList'
+        url:'/api/usersList',
+        params:{
+          pageNo:pageNo,
+          pageSize:10,
+          username:this.username,
+          phone:this.phone,
+          address:this.address,
+          email:this.email
+        }
       }).then(res => {
         var list = res.data.list
         var data = []
@@ -133,7 +177,7 @@ export default {
           })
         })
         this.tableData = data
-        console.log(this.tableData)
+        // console.log(this.tableData)
       }).catch(err => {
 
       })
@@ -162,21 +206,38 @@ export default {
       })
     },
     deleteClick(row){
-      var _this = this
-      axios({
-        method:'post',
-        url:'/api/deleteUser',
-        data:{
-          username:row.username
-        }
-      }).then(res => {
-        if(res.data.code == '200'){
-          
+      this.$confirm('此操作将永久删除该条记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        let res = await axios({
+          url:'/api/deleteUser',
+          method:'delete',
+          data:{
+            username:row.username
+          }
+        })
+        if(res.data.code == 200){
           this.getUsersList()
-          alert('删除成功')
-        }
-      }).catch(err => {
-        console.log(err)
+          this.$message({
+            type: 'success',
+            showClose: true,
+            message: '删除成功!'
+          })
+        }else{
+          this.$message({
+            type: 'error',
+            showClose: true,
+            message: '删除失败!'
+          })
+        } 
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          showClose: true,
+          message: '已取消删除'
+        })       
       })
     },
     deleteList(){
@@ -187,7 +248,7 @@ export default {
       if(arr.length == 0){
         return
       }
-      axios.put('/api/deleteList',{usernames:arr}).then(res => {
+      axios.delete('/api/deleteList',{usernames:arr}).then(res => {
         if(res.data.code == '200'){
           alert('删除成功')
           this.getUsersList()
@@ -263,14 +324,26 @@ export default {
   }
 };
 </script>
-<style>
-  .user h3{
-    text-align: center;
+<style lang="scss">
+  .container{
+    .top{
+      margin-top: 30px;
+      margin-left: 30px;
+    }
+    .el-input__inner{
+      border-color: #1B9DDE
+    }
+    .btn-search{
+      border-color: rgb(128, 86, 86);
+      background-color: #2A5976;
+      color: white;
+      margin-left: 50px;
+      width: 120px;
+    }
   }
   .el-table{
-    top:50px;
+    margin-top:30px;
     width: 70%;
-    position: relative;
     margin-left: 60px; 
     /* left: 17%; */
   }

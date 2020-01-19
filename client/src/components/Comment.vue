@@ -3,17 +3,17 @@
     <div class="top">
       <el-form ref="goods" label-width="90px">
         <el-row>
-          <el-col :span="5">
+          <el-col :span="4">
             <el-form-item label="商品编号" prop="goodsId">
               <el-input v-model="goodsId" placeholder="输入关键字" />
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+          <el-col :span="4">
             <el-form-item label="商品类型" prop="goodsType">
               <el-input v-model="goodsType" placeholder="输入关键字" />
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+          <el-col :span="4">
             <el-form-item label="商品名称" prop="goodsName">
               <el-input v-model="goodsName" placeholder="输入关键字" />
             </el-form-item>
@@ -22,7 +22,7 @@
             <el-button class="btn-add" @click="addGoods" >新增商品</el-button>
           </el-col>
           <el-col :span="3">
-            <el-button class="btn-search" @click="searchGoods" >搜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;索</el-button>
+            <el-button class="btn-search" @click="searchGoods()" >搜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;索</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -30,7 +30,7 @@
     <div class="goodsTab">
       <el-table
         :data="tableData"
-        style="width: 90%">
+        style="width:100%">
         <el-table-column
           prop="id"
           label="商品编号"
@@ -39,21 +39,21 @@
         <el-table-column
           prop="type"
           label="商品类型"
-          width="180">
+          width="150">
         </el-table-column>
         <el-table-column
           prop="goodsName"
-          width="180"
+          width="450"
           label="商品名称">
         </el-table-column>
         <el-table-column
           prop="price"
-          width="180"
+          width="150"
           label="商品价格">
         </el-table-column>
         <el-table-column
           prop="count"
-          width="180"
+          width="150"
           label="商品库存">
         </el-table-column>
         <el-table-column
@@ -61,17 +61,18 @@
           width="160"
           show-overflow-tooltip>
           <template slot-scope="scope">
-            <el-button size="mini" type="danger" @click="updateGoods(scope.row)">修改</el-button>
+            <el-button size="mini" style="background:orange;color:white" @click="updateGoods(scope.row)">修改</el-button>
             <el-button size="mini" type="danger" @click="deleteGoods(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-dialog
+          v-if="dialogVisible"
           title="商品信息"
           :visible.sync="dialogVisible"
           width="25%"
           :before-close="handleClose">
-          <el-form :model="goodsForm" status-icon :rules="goodsRules" ref="goodsForm" label-width="90px" class="goodsForm">
+          <el-form :model="goodsForm" status-icon :rules="goodsRules" ref="goodsForm" label-width="80px" class="goodsForm">
             <el-form-item label="商品类型" prop="type">
               <el-input v-model="goodsForm.type"></el-input>
             </el-form-item>
@@ -91,6 +92,16 @@
             <el-button type="danger" @click="handleClose">取 消</el-button>
           </span>
         </el-dialog>
+    </div>
+    <div class="page">
+      <el-pagination
+        background
+        prev-text='上一页'
+        next-text='下一页'
+        @current-change="pageChange"
+        :current-page="currPage"
+        :total="totalCount">
+      </el-pagination>
     </div>
 </div>
 </template>
@@ -150,7 +161,9 @@ export default {
         price:[{ required: true, trigger: 'change' ,validator: validPrice}],
         count:[{ required: true, trigger: 'change' ,validator: validCount}]
       },
-      saveFlag:true
+      saveFlag:true,
+      totalCount:0,
+      currPage:1
     };
   },
   watch: {},
@@ -164,6 +177,7 @@ export default {
       this.goodsForm.price = ''
       this.goodsForm.count = ''
       this.dialogVisible = false
+      
     },
     async save(){
       this.$refs.goodsForm.validate(async(valid) => {
@@ -249,7 +263,7 @@ export default {
         }).then(async() => {
           let res = await axios({
             url:'/api/deleteGoods',
-            method:'post',
+            method:'delete',
             data:{
               id:row.id
             }
@@ -258,42 +272,55 @@ export default {
             this.searchGoods()
             this.$message({
               type: 'success',
+              showClose: true,
               message: '删除成功!'
             })
           }else{
             this.$message({
-              type: 'fail',
+              type: 'error',
+              showClose: true,
               message: '删除失败!'
             })
           } 
         }).catch(() => {
           this.$message({
             type: 'info',
+            showClose: true,
             message: '已取消删除'
           })       
         })
     },
     async init () {
-      let result = await this.searchGoods()
-      this.tableData = result.data.list
-      console.log(result)
+      await this.searchGoods()
     },
-    async searchGoods(){
+    async searchGoods(pageNo){
+      let page = 1
+      if(pageNo != undefined){
+        page = pageNo
+      }
+      this.currPage = pageNo
       let res = await axios({
         url:'/api/goodsList',
         method:'get',
         params:{
           id:this.goodsId,
           type:this.goodsType,
-          goodsName:this.goodsName
+          goodsName:this.goodsName,
+          pageNo:page,
+          pageSize:10,
         }
       })
       this.tableData = res.data.list
+      this.totalCount = res.data.allCount
       return res
     },
     async addGoods(){
       this.dialogVisible = true
       this.saveFlag = true
+    },
+    async pageChange(page){
+      this.searchGoods(page)
+      // console.log(this.currPage)
     }
   },
   created() {},
@@ -310,14 +337,32 @@ export default {
 </script>
 <style lang="scss">
   .comment{
+    .el-form-item__error{
+      left: 20px;
+    }
     .top{
       position: relative;
-      left: 30px;
+      margin-left: 30px;
+      margin-top: 20px;
+    }
+    .page{
+      margin-top: 40px;
+      .el-pagination{
+        text-align: center;
+      }
+      .el-pagination__rightwrapper{
+        position: absolute;
+        left: 75%;
+        .el-pagination__total{
+          color: #000000;
+        }
+      }
     }
     .goodsTab{
       position: relative;
-      top: 30px;
-      left: 40px;
+      text-align: center;
+      margin-left: 40px;
+      margin-top: 10px;
       .el-input__inner{
         width: 90%;
       }
@@ -332,6 +377,7 @@ export default {
       }
       .el-dialog__header{
         margin-top: 10px;
+        margin-left: -50%;
       }
     }
     .el-input__inner{
@@ -343,6 +389,9 @@ export default {
       color: white;
       margin-left: 50px;
       width: 120px;
+    }
+    .el-input__suffix{
+      right: 15px;
     }
     .btn-add{
       border-color: rgb(128, 86, 86);

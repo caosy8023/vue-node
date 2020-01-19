@@ -185,28 +185,57 @@ router.post('/addUser',function(req,res){
 //查询用户列表
 router.get('/usersList',function(req,res){
   // res.send(333)
-  var sql = 'select * from users'
-  var pool = db.pool()
-  var data = {}
+  let sql = 'select * from users where'
+  let flag = 0
+  for (let item in req.query) {
+    if(req.query[item] != '' && item != 'pageSize' && item != 'pageNo'){
+      flag++
+      if(flag > 1){
+        sql += ` and ${item} like '%${req.query[item]}%'`
+      }else{
+        sql += ` ${item} like '%${req.query[item]}%'`
+      }
+    }
+  }
+  if(flag == 0){
+    sql = 'select * from users'
+  }
+  let pool = db.pool()
   pool.query(sql,function(err,result){
     if(err){
       console.log(err)
-      data.code = 500
-      data.msg = '查询失败'
-      res.send(data)
+      res.json({
+        code:500,
+        msg:'查询失败'
+      })
     }else if(result){
-      data.code = 200
       result.forEach((item,index) => {
         item.password = ''
       })
-      data.msg = '查询成功'
-      data.list = result
-      res.send(data)
+      if(result.length >10){
+        res.json({
+          code:200,
+          msg:'查询成功',
+          allCount:result.length,
+          pageNo:req.query.pageNo,
+          pageSize:req.query.pageSize,
+          list:result.splice((req.query.pageNo-1)*req.query.pageSize,req.query.pageSize)
+        })
+      }else{
+        res.json({
+          code:200,
+          msg:'查询成功',
+          allCount:result.length,
+          pageNo:req.query.pageNo,
+          pageSize:req.query.pageSize,
+          list:result
+        })
+      }
     }
   })
 })
 //删除用户
-router.post('/deleteUser',function(req,res){
+router.delete('/deleteUser',function(req,res){
   var sql = 'delete from users where username = ?'
   var params = URL.parse(req.url,true).query
   var pool = db.pool()
@@ -263,7 +292,7 @@ router.post('/updateUser',function(req,res){
   })
 })
 //删除多条信息
-router.put('/deleteList',function(req,res){
+router.delete('/deleteList',function(req,res){
   var usernames = req.body.usernames
   var data = ''
   usernames.forEach((item,index) => {
@@ -368,7 +397,7 @@ router.get('/goodsList',(req,res) => {
   let sql = 'select * from goods where'
   let flag = 0
   for (let item in req.query) {
-    if(req.query[item] != ''){
+    if(req.query[item] != '' && item != 'pageSize' && item != 'pageNo'){
       flag++
       if(flag > 1){
         sql += ` and ${item} like '%${req.query[item]}%'`
@@ -383,16 +412,31 @@ router.get('/goodsList',(req,res) => {
   let pool = db.pool()
   pool.query(sql,(err,result) => {
     if(err){
+      console.log(err)
       res.json({
         code:500,
         msg:'查询失败'
       })
     }else if(result){
-      res.json({
-        code:200,
-        msg:'查询成功',
-        list:result
-      })
+      if(result.length > req.query.pageSize){
+        res.json({
+          code:200,
+          msg:'查询成功',
+          pageNo:req.query.pageNo,
+          pageSize:req.query.pageSize,
+          allCount:result.length,
+          list:result.splice((req.query.pageNo -1)*req.query.pageSize,req.query.pageSize)
+        })
+      }else{
+        res.json({
+          code:200,
+          msg:'查询成功',
+          pageNo:req.query.pageNo,
+          pageSize:req.query.pageSize,
+          allCount:result.length,
+          list:result
+        })
+      }
     }
   })
 })
@@ -435,11 +479,70 @@ router.post('/updateGoods',(req,res) => {
   })
 })
 //删除商品记录
-router.post('/deleteGoods',(req,res) => {
+router.delete('/deleteGoods',(req,res) => {
   let sql = `delete from goods where id = ${req.body.id}`
   let pool = db.pool()
   pool.query(sql,(err,result) => {
     if(err){
+      res.json({
+        code:500,
+        msg:'删除失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'删除成功'
+      })
+    }
+  })
+})
+router.get('/goodsDetail',(req,res) => {
+  let sql = 'select * from goods'
+  let pool = db.pool()
+  pool.query(sql,(err,result) => {
+    if(err){
+      console.log(err)
+      res.json({
+        code:500,
+        msg:'查询失败'
+      })
+    }else if(result){
+      res.json({
+        code:200,
+        msg:'查询成功',
+        list:result
+      })
+    }
+  })
+})
+//加入购物车
+router.put('/addShopcar',(req,res) => {
+  const pool = db.pool()
+  const sql = 'insert into shopcar(name,address,price,count,allPrice,userId,goods_id) values(?,?,?,?,?,?,?)'
+  const sqlparam = [req.body.name,req.body.address,req.body.price,req.body.count,req.body.allPrice,req.body.userId,req.body.goodsId]
+  console.log(req.body.userId,req.body.goodsId)
+  pool.query(sql,sqlparam,function(err,reslut){
+    if(err){
+      console.log(err)
+      res.json({
+        code:500,
+        msg:'添加失败'
+      })
+    }else if(reslut){
+      res.json({
+        code:200,
+        msg:'添加成功'
+      })
+    }
+  })
+})
+//清除购物车记录
+router.delete('/deleteCart',(req,res) => {
+  const pool = db.pool()
+  const sql = `delete from shopcar where id = ${req.body.id}`
+  pool.query(sql,(err,result) => {
+    if(err){
+      console.log(err)
       res.json({
         code:500,
         msg:'删除失败'

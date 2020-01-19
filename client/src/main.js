@@ -7,6 +7,9 @@ import router from './router'
 import axios from 'axios'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import VueLazyload from 'vue-lazyload'
+
+Vue.use(VueLazyload)
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';           //配置请求头
 axios.defaults.baseURL = '';   //配置接口地址c
 Vue.config.productionTip = false

@@ -4,12 +4,9 @@
         <div style="float:right;height:100%;margin-top:5px;line-height:47px;margin-left:15px">
             <img style="height:40px;width:40px;border-radius:50%" :src="avatar" alt="">
         </div>
-        
         <span style="float:right;line-height:47px">{{userId}}</span>
-        
     </div>
 </template>
-
 <script>
 export default {
   name:'Header',
@@ -39,7 +36,7 @@ export default {
   },
   created() {},
   mounted() {
-      console.log(this.userId)
+      
   }
 };
 </script>

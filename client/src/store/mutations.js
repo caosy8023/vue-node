@@ -67,7 +67,6 @@ export default {
             }
         }).then(res => {
             state.car = res.data.msg
-            console.log(state.car)
         }).catch(err => {
         
         })

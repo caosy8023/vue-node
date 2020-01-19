@@ -1,5 +1,5 @@
 <template>
-<div class="container login">
+<div class="container login" @keyup.enter="login()">
   <div class="switch">
     <span @click="pwdLogin" :class="{active:loginWay}">密码登录</span><span @click="mailLogin" :class="{active:!loginWay}">邮箱登录</span>
   </div>
@@ -32,6 +32,7 @@
 
 <script>
 import axios from 'axios'
+import {resolve} from 'path'
 export default {
   name:'Login',
   components: {},
@@ -164,7 +165,7 @@ export default {
                   path: '/index'
                 })
                 this.flag = false
-              }else if(res.data.code == '1'){
+              }else if(res.data.code == '500'){
                 this.flag = true
               }
             }).catch(err => {
@@ -206,7 +207,9 @@ export default {
     }
   },
   created() {},
-  mounted() {}
+  mounted() {
+    
+  }
 };
 </script>
 <style lang="scss">
