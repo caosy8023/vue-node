@@ -208,7 +208,19 @@ export default {
   },
   created() {},
   mounted() {
-    
+    // setInterval(()=>{
+    //   axios({
+    //     method:'get',
+    //     url:'/api/email',
+    //     params:{
+    //       email:"270104722@qq.com"
+    //     }
+    //   }).then(res => {
+    //     console.log(res)
+    //   }).catch(err => {
+
+    //   })
+    // },2000)
   }
 };
 </script>

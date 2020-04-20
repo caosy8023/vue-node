@@ -2,12 +2,13 @@ var express = require('express');
 var router = express.Router();
 var db = require('../model/db')
 var URL = require('url')
-var multiparty = require('multiparty')
+// var multiparty = require('multiparty')
 var formidable = require('formidable')
 var {fs,rename} = require('fs')
-var multer = require("multer")
+// var multer = require("multer")
 const nodemailer = require('nodemailer')
 const {normalize,resolve} = require('path')
+const {userRequired} = require('../model/auth')
 
 /* 登录*/
 router.post('/emailLogin',function(req,res){
@@ -44,40 +45,48 @@ router.get('/email',function(req,res){
       secure: true, // true for 465, false for other ports
       auth: {
           user: '1733010143@qq.com', // generated ethereal user
-          pass: 'vbenrgvnufolbiic' // generated ethereal password
+          pass: 'qfcydkylcokybiid' // generated ethereal password
       }
   })
+  console.log(URL.parse(req.url,true).query.email)
   transporter.sendMail({
     from: '"Fred Foo 👻" <1733010143@qq.com>', // sender address
     to: URL.parse(req.url,true).query.email, // list of receivers
-    subject: '验证码', // Subject line
-    text: `验证码为${num},3分钟有效!`, // plain text body
+    subject: '噗噗噗', // Subject line
+    text: `过年噗咯，阿睿哎，噗哦`, // plain text body
     // html: '<b>Hello world?</b>' // html body
   },function(err,info){
     if(err){
       console.log(err)
     }else{
-      var sql = 'update validates set validate = ?,email = ?'
-      var connection = db.connection()
-      var sqlparam = [num,URL.parse(req.url,true).query.email]
-      connection.query(sql,sqlparam,function(err,result){
-        if(err){
-          res.json({
-            code:500
-          })
-        }else if(result){
-          res.json({
-            code:200
-          })
-        }
+      console.log('ok')
+      res.json({
+        code:200
       })
-      db.close(connection)
     }
+    // else{
+    //   var sql = 'update validates set validate = ?,email = ?'
+    //   var connection = db.connection()
+    //   var sqlparam = [num,URL.parse(req.url,true).query.email]
+    //   connection.query(sql,sqlparam,function(err,result){
+    //     if(err){
+    //       res.json({
+    //         code:500
+    //       })
+    //     }else if(result){
+    //       res.json({
+    //         code:200
+    //       })
+    //     }
+    //   })
+    //   db.close(connection)
+    // }
   })
   
 })
 router.post('/login',function(req,res){
-  var params = URL.parse(req.url, true).query;
+  
+  // var params = URL.parse(req.url, true).query;
   var sql = 'select * from users where username = ? and password = ?'
   var connection = db.connection()
   var sqlparam = [req.body.username,req.body.password]
@@ -88,8 +97,14 @@ router.post('/login',function(req,res){
       data.msg = '查询失败'
       res.send(data)
     }else if(result){
-      console.log(result)
       if(result.length>0){
+        req.session.user = req.body.username
+        res.cookie('user',req.body.username,{
+          path: '/',
+          signed: true,//对cookie密码进行加密的话, 需要使用到cookieParser
+          httpOnly: true,
+          maxAge: 30 * 24 * 60 * 60 * 1000
+        })
         if(result[0].username == sqlparam[0] && result[0].password == sqlparam[1]){
           data.msg = '登陆成功'
           data.code = '0'
@@ -184,7 +199,6 @@ router.post('/addUser',function(req,res){
 })
 //查询用户列表
 router.get('/usersList',function(req,res){
-  // res.send(333)
   let sql = 'select * from users where'
   let flag = 0
   for (let item in req.query) {
@@ -256,6 +270,7 @@ router.delete('/deleteUser',function(req,res){
 })
 //用户查询
 router.get('/user',function(req,res){
+  next();
   var sql = 'select * from users where username = ?'
   var params = URL.parse(req.url,true).query
   var pool = db.pool()
